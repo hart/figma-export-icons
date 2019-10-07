@@ -74,6 +74,14 @@ function createOutputDirectory () {
   })
 }
 
+function cleanName (name) {
+  let cleaned = name;
+  if (config.options && config.options.removeSpaces) {
+    cleaned = name.replace(/\s+/g, '');
+  }
+  return cleaned;
+}
+
 function deleteIcon (iconPath) {
   return new Promise((resolve) => {
     fs.unlink(iconPath, (err) => {
@@ -196,12 +204,12 @@ function getImages (icons) {
 }
 
 function downloadImage (url, name) {
-  let nameClean = name
+  let nameClean = cleanName(name);
   let directory = config.iconsPath
-  const idx = name.lastIndexOf('/')
+  const idx = nameClean.lastIndexOf('/')
   if (idx !== -1) {
-    directory = directory + '/' + name.substring(0, idx)
-    nameClean = name.substring(idx + 1)
+    directory = directory + '/' + nameClean.substring(0, idx)
+    nameClean = nameClean.substring(idx + 1)
     if (!fs.existsSync(directory)) {
       if (mkdirp.sync(directory)) {
         console.log(`\nCreated sub directory ${directory}`)
@@ -233,7 +241,7 @@ function downloadImage (url, name) {
     writer.on('finish', () => {
       // console.log(`Saved ${name}.svg`, fs.statSync(imagePath).size)
       resolve({
-        name: `${name}.svg`,
+        name: `${cleanName(name)}.svg`,
         size: fs.statSync(imagePath).size
       })
     })
